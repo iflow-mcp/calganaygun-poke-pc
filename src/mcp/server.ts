@@ -4,6 +4,7 @@ import { isAbsolute, relative, resolve } from "node:path";
 import { readFile, realpath, stat } from "node:fs/promises";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import type { Logger } from "pino";
@@ -28,6 +29,25 @@ export async function startMcpServer({
   terminal,
   logger
 }: Dependencies): Promise<RunningMcpServer> {
+  // 检查是否使用 stdio 传输协议
+  const useStdio = process.env.MCP_TRANSPORT === 'stdio';
+  
+  if (useStdio) {
+    // 使用 stdio 传输协议
+    logger.info("使用 stdio 传输协议");
+    const server = buildServer(terminal, logger);
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    
+    return {
+      close: async () => {
+        await transport.close();
+        await server.close();
+      }
+    };
+  }
+  
+  // 使用 Streamable HTTP 传输协议（原有逻辑）
   const app = createMcpExpressApp({ host: config.mcpHost });
   const transportBySession: Record<string, StreamableHTTPServerTransport> = {};
 
