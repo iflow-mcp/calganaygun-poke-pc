@@ -1,0 +1,1 @@
+{"serverConfig": "{\"mcpServers\":{\"poke-pc\":{\"command\":\"npx\",\"args\":[\"-y\",\"@iflow-mcp/calganaygun-poke-pc\"],\"env\":{\"MCP_TRANSPORT\":\"stdio\"},\"values\":{}}}}"}
