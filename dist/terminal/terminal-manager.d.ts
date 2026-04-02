@@ -1,0 +1,44 @@
+import type { Logger } from "pino";
+export type CommandStatus = "running" | "completed" | "failed" | "lost";
+export type CommandRecord = {
+    id: string;
+    sessionName: string;
+    windowName: string;
+    command: string;
+    startedAt: string;
+    endedAt: string | undefined;
+    exitCode: number | undefined;
+    status: CommandStatus;
+    longRunningNotified: boolean;
+    completionNotified: boolean;
+    lastHeartbeatAt: string | undefined;
+};
+export declare class TerminalManager {
+    private readonly statePath;
+    private readonly historyPath;
+    private readonly logger;
+    private state;
+    constructor(statePath: string, logger: Logger);
+    init(restoreSessions: boolean): Promise<void>;
+    listSessionsFromState(): string[];
+    listActiveTmuxSessions(): Promise<string[]>;
+    ensureSession(sessionName: string): Promise<void>;
+    killSession(sessionName: string): Promise<void>;
+    runCommand(sessionName: string, command: string): Promise<CommandRecord>;
+    getCommandById(commandId: string): CommandRecord | undefined;
+    listCommands(limit?: number): CommandRecord[];
+    getRunningCommands(): CommandRecord[];
+    markLongRunningNotified(commandId: string, heartbeatAt?: Date): void;
+    markHeartbeat(commandId: string, heartbeatAt: Date): void;
+    markCompletionNotified(commandId: string): void;
+    refreshAllCommandStatuses(): Promise<CommandRecord[]>;
+    captureOutput(commandId: string, lines?: number): Promise<string>;
+    private refreshCommandStatus;
+    private restoreSessions;
+    private ensureTmuxServerReady;
+    private loadState;
+    private saveState;
+    private appendHistory;
+    private ensureTmuxAvailable;
+    private runTmux;
+}

@@ -1,6 +1,6 @@
 # Node / TypeScript
 node_modules/
-dist/
+# dist/  # 移除此行以发布构建产物
 *.tsbuildinfo
 
 # Local env / secrets
